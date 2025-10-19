@@ -1,0 +1,73 @@
+@host = http://localhost:5000
+
+### Register a new user
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+### Login with email and password
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123!"
+}
+
+### Refresh access token
+# @name loginResponse
+POST {{host}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{loginResponse.response.body.refreshToken}}"
+}
+
+### Revoke refresh token (requires authentication)
+POST {{host}}/api/auth/revoke
+Content-Type: application/json
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+{
+  "refreshToken": "{{loginResponse.response.body.refreshToken}}"
+}
+
+### Get all users (requires authentication)
+GET {{host}}/api/user
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+### Get current user profile (requires authentication)
+GET {{host}}/api/user/me
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+### Get user by ID (requires authentication)
+GET {{host}}/api/user/1
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+### Update user profile (requires authentication - can only update own profile)
+PUT {{host}}/api/user/1
+Content-Type: application/json
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+{
+  "email": "john.updated@example.com",
+  "firstName": "John Updated",
+  "lastName": "Doe Updated"
+}
+
+### Delete user (requires authentication - can only delete own profile)
+DELETE {{host}}/api/user/1
+Authorization: Bearer {{loginResponse.response.body.accessToken}}
+
+### Test endpoints without authentication (should return 401)
+GET {{host}}/api/user
+
+### Test with invalid token (should return 401)
+GET {{host}}/api/user/me
+Authorization: Bearer invalid_token_here
